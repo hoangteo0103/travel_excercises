@@ -14,25 +14,35 @@ const checkinDate = process.argv[2]; // Accept as a command-line argument
 const formattedCheckinDate = moment(checkinDate).format('YYYY-MM-DD');
 
 // Step 3: Filter Offers
-const eligibleOffers = inputData.offers
-  .filter(offer =>
-    [1, 2, 4].includes(offer.category) &&
-    moment(offer.valid_to).isSameOrAfter(moment(formattedCheckinDate).add(5, 'days'))
-  )
-  .map(offer => {
-    const closestMerchant = offer.merchants.reduce((closest, current) =>
-      current.distance < closest.distance ? current : closest
-    );
-    return { ...offer, merchants: [closestMerchant] };
-  })
-  .sort((a, b) => a.merchants[0].distance - b.merchants[0].distance);
-
+const categoryMapping = {
+    Restaurant: 1,
+    Retail: 2,
+    Hotel: 3,
+    Activity: 4,
+  };
+  
+  const eligibleCategories = [categoryMapping.Restaurant, categoryMapping.Retail, categoryMapping.Activity];
+  const eligibleOffers = inputData.offers
+    .filter(offer =>
+      eligibleCategories.includes(offer.category) &&
+      moment(offer.valid_to).isSameOrAfter(moment(formattedCheckinDate).add(5, 'days'))
+    )
+    .map(offer => {
+      const closestMerchant = offer.merchants.reduce((closest, current) =>
+        current.distance < closest.distance ? current : closest
+      );
+      return { ...offer, merchants: [closestMerchant] };
+    })
+    .sort((a, b) => a.merchants[0].distance < b.merchants[0].distance);
+  
 // Select 2 offers with different categories
 const selectedOffers = [];
-console.log(eligibleOffers);
-for (const offer of eligibleOffers) {
+for(const offer of eligibleOffers) {
+    console.log(offer.merchants[0].distance);
+}
+for (const currentOffer of eligibleOffers) {
   if (selectedOffers.length < 2 && !selectedOffers.some(offer => offer.category === currentOffer.category)) {
-    selectedOffers.push(offer);
+    selectedOffers.push(currentOffer);
   }
 }
 
