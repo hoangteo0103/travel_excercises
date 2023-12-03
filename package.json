@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "geolib": "^3.3.4",
+    "moment": "^2.29.4"
+  }
+}
