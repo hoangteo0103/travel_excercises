@@ -9,8 +9,6 @@ The Offer Filter App is a web application that allows users to filter and displa
 - [Folder Structure](#folder-structure)
 - [API Endpoints](#api-endpoints)
 - [Screenshots](#screenshots)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
