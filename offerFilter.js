@@ -1,4 +1,5 @@
 // offerFilter.js
+const fs = require('fs');
 const moment = require('moment');
 const axios = require('axios');
 
@@ -46,7 +47,9 @@ async function filterOffers(checkinDate, selectedCategories, apiLink, useDefault
       return { ...offer, merchants: [closestMerchant] };
     })
     .sort((a, b) => a.merchants[0].distance < b.merchants[0].distance);
-
+if (eligibleOffers.length < 2) {
+    throw new Error('Not enough selected offers found');
+  }
   const selectedOffers = [];
   for (const currentOffer of eligibleOffers) {
     if (selectedOffers.length < 2 && !selectedOffers.some(offer => offer.category === currentOffer.category)) {
@@ -56,6 +59,13 @@ async function filterOffers(checkinDate, selectedCategories, apiLink, useDefault
       }
     }
   }
+
+  if (eligibleOffers.length < 2) {
+    throw new Error('Not enough selected offers found');
+  }
+
+  const outputData = JSON.stringify(selectedOffers, null, 2);
+  fs.writeFileSync('output.json', outputData);
 
   return selectedOffers;
 }
