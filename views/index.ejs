@@ -1,0 +1,124 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offer Filter</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <img src="https://cdn.techinasia.com/data/images/bUlG5oG6NuBkzJJ0ILt7UgntbzF6WvV8zQtlhOYI.png" alt="Company Logo" id="logo">
+    <h1>Offer Filter</h1>
+  </header>
+  <main>
+    <form onsubmit="return validateCategories();">
+      <label for="checkinDate">Check-in Date:</label>
+      <input type="date" id="checkinDate" name="checkinDate" value="<%= defaultDate %>">
+
+      <div>
+        <input type="checkbox" id="useDefaultData" name="useDefaultData" checked>
+        <label for="useDefaultData">Use Default Data</label>
+      </div>
+
+      <div>
+        <!-- Provide placeholder text for better user understanding -->
+        <label for="apiLink">API Link (if not using default data):</label>
+        <input type="text" id="apiLink" name="apiLink" placeholder="Enter API Link">
+      </div>
+
+      <div>
+        <label>Select Categories:</label>
+        <!-- Corrected the duplicated id issue -->
+        <input type="checkbox" id="restaurant" name="selectedCategories" value="Restaurant" checked>
+        <label for="restaurant">Restaurant</label>
+        <input type="checkbox" id="retail" name="selectedCategories" value="Retail" checked>
+        <label for="retail">Retail</label>
+        <input type="checkbox" id="hotel" name="selectedCategories" value="Hotel" checked>
+        <label for="hotel">Hotel</label>
+        <input type="checkbox" id="activity" name="selectedCategories" value="Activity" checked>
+        <label for="activity">Activity</label>
+      </div>
+
+      <button type="button" onclick="filterOffers()">Filter Offers</button>
+    </form>
+  </main>
+  <script>
+    async function filterOffers() {
+    const checkinDate = document.getElementById('checkinDate').value;
+    const selectedCategories = Array.from(document.getElementsByName('selectedCategories'))
+      .filter(category => category.checked)
+      .map(category => category.value);
+    const apiLink = document.getElementById('apiLink').value;
+    const useDefaultData = document.getElementById('useDefaultData').checked;
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append('checkinDate', checkinDate);
+      formData.append('selectedCategories', JSON.stringify(selectedCategories));
+      formData.append('apiLink', useDefaultData ? '' : apiLink);
+      formData.append('useDefaultData', useDefaultData.toString());
+
+      const response = await fetch('/filter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      });
+
+      console.log(response);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        // Redirect to the filtered-offers page with query parameters
+        const form = document.createElement('form');
+        form.action = '/filtered-offers';
+        form.method = 'POST';
+
+        // Create an input field for the offers data
+        const offersInput = document.createElement('input');
+        offersInput.type = 'hidden';
+        offersInput.name = 'offers';
+        offersInput.value = JSON.stringify(data);
+        // Append the input field to the form
+        form.appendChild(offersInput);
+
+        // Append the form to the body and submit it
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        const errorMessage = await response.text();
+        alert(`Error: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error('An unexpected error occurred:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
+  }
+
+
+    function validateCategories() {
+      const selectedCategories = document.getElementsByName('selectedCategories');
+      const selectedCategoryCount = Array.from(selectedCategories).filter(category => category.checked).length;
+
+      if (selectedCategoryCount < 2) {
+        alert('Please select at least 2 categories.');
+        return false;
+      }
+
+      const apiLink = document.getElementById('apiLink').value;
+      const useDefaultData = document.getElementById('useDefaultData').checked;
+
+      if (!apiLink && !useDefaultData) {
+        alert('Please provide either an API link or select "Use Default Data".');
+        return false;
+      }
+
+      return true;
+    }
+  </script>
+</body>
+</html>
