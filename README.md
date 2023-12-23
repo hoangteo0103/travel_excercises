@@ -43,7 +43,7 @@ The Offer Filter App is a web application that allows users to filter and displa
 
 -  If no eligible offers are found based on the specified criteria, an appropriate message will be displayed.
 ![Alt text](image-3.png)
-### Outputting Data to output.json
+## Outputting Data to output.json
 -  The filtered offers will be displayed on the result page.
 -  Additionally, the application will output the selected offers to an output.json file in the project directory.
 ## Folder Structure
